@@ -11,6 +11,7 @@ import SelectInput from "../inputs/SelectInput";
 import useSetPropertySelected from "./useSetPropertySelected";
 import BooleanInput from "../inputs/BooleanInput";
 import { DistanceModelOptions, DistanceModelType } from "../../editor/objects/AudioSource";
+import HubsComponentsConfigEditor from "@/src/ui/properties/HubsComponentsConfigEditor";
 
 const FogTypeOptions = [
   {
@@ -257,6 +258,7 @@ export default function SceneNodeEditor(props) {
           </InputGroup>
         </>
       )}
+      <HubsComponentsConfigEditor node={node} />
     </NodeEditor>
   );
 }

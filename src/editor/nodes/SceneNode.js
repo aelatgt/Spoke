@@ -8,6 +8,7 @@ import getNodeWithUUID from "../utils/getNodeWithUUID";
 import serializeColor from "../utils/serializeColor";
 import { DistanceModelType } from "../objects/AudioSource";
 import traverseFilteredSubtrees from "../utils/traverseFilteredSubtrees";
+import HubsComponentsConfig from "@/src/editor/components/HubsComponentsConfig";
 
 // Migrate v1 spoke scene to v2
 function migrateV1ToV2(json) {
@@ -317,6 +318,12 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         node.mediaConeInnerAngle = props.mediaConeInnerAngle;
         node.mediaConeOuterAngle = props.mediaConeOuterAngle;
         node.mediaConeOuterGain = props.mediaConeOuterGain;
+
+        /** @type {?{ props: MOZ.Config.Serialized }} */
+        const hubsComponentsConfig = json.components.find(c => c.name === "hubsComponentsConfig");
+        if (hubsComponentsConfig) {
+          /** @type {HubsComponentsConfig} */ (node.hubsComponentsConfig).setText(hubsComponentsConfig.props.text);
+        }
       }
     }
 
@@ -346,6 +353,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     this.mediaConeInnerAngle = 360;
     this.mediaConeOuterAngle = 0;
     this.mediaConeOuterGain = 0;
+    this.hubsComponentsConfig = new HubsComponentsConfig();
     setStaticMode(this, StaticModes.Static);
   }
 
@@ -440,6 +448,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     this.mediaConeInnerAngle = source.mediaConeInnerAngle;
     this.mediaConeOuterAngle = source.mediaConeOuterAngle;
     this.mediaConeOuterGain = source.mediaConeOuterGain;
+    this.hubsComponentsConfig = source.hubsComponentsConfig;
 
     return this;
   }
@@ -485,6 +494,12 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
                 mediaConeInnerAngle: this.mediaConeInnerAngle,
                 mediaConeOuterAngle: this.mediaConeOuterAngle,
                 mediaConeOuterGain: this.mediaConeOuterGain
+              }
+            },
+            {
+              name: "hubsComponentsConfig",
+              props: {
+                text: /** @type {HubsComponentsConfig} */ (this.hubsComponentsConfig).text
               }
             }
           ]
