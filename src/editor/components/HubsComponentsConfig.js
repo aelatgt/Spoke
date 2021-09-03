@@ -1,3 +1,5 @@
+import defaultConfigRaw from "@/default-config.json";
+
 /**
  * Utility class for storing the raw and parsed versions of a config
  * file together. This is used because we want to reference the parsed config data
@@ -11,7 +13,7 @@ export default class HubsComponentsConfig {
   json;
 
   /** @type {string} Default config file text */
-  defaultText = JSON.stringify({ types: {}, components: {} }, null, 2);
+  defaultText = defaultConfigRaw;
 
   /** @param {string} [text] */
   constructor(text) {

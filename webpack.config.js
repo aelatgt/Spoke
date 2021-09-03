@@ -210,6 +210,11 @@ module.exports = env => {
               name: "[name]-[hash].[ext]"
             }
           }
+        },
+        {
+          test: /default-config.json$/,
+          type: "javascript/auto",
+          use: "raw-loader"
         }
       ]
     },

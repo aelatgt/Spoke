@@ -155,6 +155,7 @@
     "node-fetch": "^2.6.1",
     "prettier": "^1.16.4",
     "puppeteer": "^5.2.1",
+    "raw-loader": "^4.0.2",
     "selfsigned": "^1.10.6",
     "sinon": "^7.4.2",
     "standardized-audio-context-mock": "^7.1.6",
