@@ -7,6 +7,7 @@ import {
   isStatic
 } from "../StaticMode";
 import { Color, Object3D } from "three";
+import cloneDeep from "lodash/cloneDeep";
 import serializeColor from "../utils/serializeColor";
 import LoadingCube from "../objects/LoadingCube";
 import ErrorIcon from "../objects/ErrorIcon";
@@ -137,7 +138,7 @@ export default function EditorNodeMixin(Object3DClass) {
       this.issues = source.issues.slice();
       this._visible = source._visible;
       this.enabled = source.enabled;
-      this.hubsComponents = source.hubsComponents;
+      this.hubsComponents = cloneDeep(source.hubsComponents);
 
       return this;
     }
