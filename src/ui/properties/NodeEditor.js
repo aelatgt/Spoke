@@ -22,7 +22,7 @@ export default class NodeEditor extends Component {
 
     /** @type {MOZ.Node.SceneNode} */
     const sceneNode = this.props.editor.scene;
-    const hasComponentsAvailable = sceneNode.hubsComponentsConfig.getNodeNames().has(node.nodeName);
+    const hasComponentsAvailable = sceneNode.hubsComponentsConfig.hasComponentsForNode(node.nodeName);
 
     /** @type {MOZ.Component.NodeProperties} */
     const hubsComponents = node.hubsComponents;

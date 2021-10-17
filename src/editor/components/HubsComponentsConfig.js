@@ -37,4 +37,13 @@ export default class HubsComponentsConfig {
     });
     return nodeNames;
   }
+
+  hasComponentsForNode(nodeName) {
+    // Are there components that can attach to any node (i.e. "node" is set to true)?
+    const anyNodeComponents = Object.values(this.json.components).some(componentConfig => componentConfig.node);
+    // Are there components that specify this node via their "nodes" array?
+    const thisNodeComponents = this.getNodeNames().has(nodeName);
+
+    return anyNodeComponents || thisNodeComponents;
+  }
 }

@@ -105,11 +105,14 @@ namespace MOZ {
       [typeName: string]: TypeDefinition
     }
     type ComponentDefinition = {
-      /** Which nodes this component can attach to. If empty, component is ignored. */
+      /**
+        * Which nodes this component can attach to. If empty, component is ignored.
+        * See the `nodeName` property on each node class for supported values.
+        **/
       nodes?: Node.Name[]
       /** Blender field for categorizing components */
       category?: string
-      /** Blender flag for whether a component is a node or scene component (our "nodes" field replaces this) */
+      /** Blender flag for whether this is a node component (overrides our "nodes" field) */
       node?: boolean
       description?: string
       /** {@link https://aframe.io/docs/1.2.0/core/component.html#multiple} */

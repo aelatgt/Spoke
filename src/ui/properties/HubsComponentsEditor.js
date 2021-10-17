@@ -16,7 +16,7 @@ import HubsComponent from "@/src/editor/components/HubsComponent";
  * Editor dropdown for applying A-Frame components to model parts
  * @param {Props}
  */
-export default function HubsComponentsProperties({ node }) {
+export default function HubsComponentsEditor({ node }) {
   /** @type {MOZ.Component.NodeProperties} */
   const hubsComponents = node.hubsComponents;
 
@@ -41,7 +41,7 @@ export default function HubsComponentsProperties({ node }) {
        * Also, don't show options for components with the "multiple" field disabled if an instance of
        * the component is already attached to the node.
        */
-      const canAttatchToNodeType = componentConfig.nodes.includes(node.nodeName);
+      const canAttatchToNodeType = componentConfig.node || componentConfig.nodes.includes(node.nodeName);
       const alreadyAttached = hubsComponents.value.find(component => component.name === componentName) !== undefined;
       const canAttachNew = componentConfig.multiple || !alreadyAttached;
       return canAttatchToNodeType && canAttachNew;
@@ -101,6 +101,6 @@ export default function HubsComponentsProperties({ node }) {
   );
 }
 
-HubsComponentsProperties.propTypes = {
+HubsComponentsEditor.propTypes = {
   node: PropTypes.object.isRequired
 };
