@@ -1,7 +1,7 @@
-import { diff } from "deep-object-diff";
+import { diff, detailedDiff } from "deep-object-diff";
 
 import HubsComponentSelector from "./HubsComponentSelector";
-import { serializeProperty, deserializeProperty, getPropertyDefault } from "./propertyUtils";
+import { serializeProperty, deserializeProperty, getPropertyDefault, castPropertyData } from "./propertyUtils";
 
 /**  An A-Frame component applied to part of a node */
 export default class HubsComponent {
@@ -243,24 +243,123 @@ export default class HubsComponent {
   }
 
   /**
+   * @returns {?MOZ.Config.ComponentDefinition}
+   */
+  getLatestConfig() {
+    if (this.sceneConfig.json.components) {
+      return this.sceneConfig.json.components[this.name];
+    } else return null;
+  }
+
+  /**
+   * @returns {MOZ.Config.Types}
+   */
+  getLatestDependentTypes() {
+    const latestConfig = this.getLatestConfig();
+    if (latestConfig && latestConfig.properties) {
+      const latestTypes = this.sceneConfig.json.types || {};
+      return this.getDependentTypes(latestConfig.properties, latestTypes);
+    } else {
+      return {};
+    }
+  }
+
+  /**
    * Has this component's local config diverged from the scene's config?
    * @returns {boolean}
    */
   needsUpdate() {
-    let latestProperties = {};
-    if (this.sceneConfig.json.components) {
-      const latestConfig = this.sceneConfig.json.components[this.name];
-      if (latestConfig) {
-        latestProperties = latestConfig.properties || {};
-      }
+    const latestConfig = this.getLatestConfig();
+    const latestProperties = {};
+    if (latestConfig) {
+      Object.assign(latestProperties, latestConfig.properties);
     }
-    const latestTypes = this.sceneConfig.json.types || {};
-    const latestDependentTypes = this.getDependentTypes(latestProperties, latestTypes);
+    const latestDependentTypes = this.getLatestDependentTypes();
 
     const diffProperties = diff(this.config.properties, latestProperties);
     const diffTypes = diff(this.types, latestDependentTypes);
 
     const numChanges = Object.keys(diffProperties).length + Object.keys(diffTypes).length;
     return numChanges > 0;
+  }
+
+  /**
+   * Attempts to migrate component data to the latest schema.
+   *
+   * @returns {?MOZ.Component.Data} The updated component data, or null if the component should be deleted
+   */
+  attemptMigration() {
+    /** @type {MOZ.Component.Data} Deep clone of component data */
+    const newData = JSON.parse(JSON.stringify(this.data));
+
+    /** @type {MOZ.Config.Properties} */
+    const latestProperties = {};
+    const latestConfig = this.getLatestConfig();
+    if (latestConfig) {
+      Object.assign(latestProperties, latestConfig.properties);
+    } else {
+      /**
+       * Removed component: delete all component data
+       */
+      return null;
+    }
+    const latestTypes = this.sceneConfig.json.types || {};
+    const latestDependentTypes = this.getDependentTypes(latestProperties, latestTypes);
+
+    const diffProperties = detailedDiff(this.config.properties, latestProperties);
+    const diffTypes = detailedDiff(this.types, latestDependentTypes);
+
+    /**
+     * Added properties: set default values
+     */
+    for (const name of Object.keys(diffProperties.added)) {
+      if ("type" in diffProperties.added[name]) {
+        newData[name] = getPropertyDefault(latestProperties[name]);
+      }
+    }
+
+    /**
+     * Removed properties: delete property data
+     */
+    for (const name of Object.keys(diffProperties.removed)) {
+      if ("type" in diffProperties.added[name]) {
+        delete newData[name];
+      }
+    }
+
+    /**
+     * Updated property type: cast data if possible, otherwise set default values
+     */
+    for (const name of Object.keys(diffProperties.updated)) {
+      const propConfig = latestProperties[name];
+      if ("type" in diffProperties.updated[name]) {
+        const castResult = castPropertyData(propConfig, this.data[name]);
+        if (castResult) newData[name] = castResult;
+        else newData[name] = getPropertyDefault(propConfig);
+      }
+      if ("arrayType" in diffProperties.updated[name]) {
+        /**
+         * Updated custom type for array: set default value (empty array)
+         * TODO: try migrating old data
+         */
+        newData[name] = getPropertyDefault(propConfig);
+      }
+    }
+
+    /**
+     * Updated type definition: set default values
+     * TODO: try migrating array entries if possible (recursive?)
+     */
+    for (const name in Object.keys(this.data)) {
+      const propConfig = latestProperties[name];
+      if (propConfig.type === "array") {
+        if (propConfig.arrayType in diffTypes.updated) {
+          newData[name] = getPropertyDefault(propConfig);
+        }
+        // TODO: check for removed types? Is this already prevented?
+      }
+    }
+
+    return newData;
   }
 }

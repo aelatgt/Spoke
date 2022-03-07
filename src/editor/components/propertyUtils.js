@@ -154,6 +154,36 @@ export function getCompoundDefault(definition) {
   return Object.fromEntries(defaultEntries);
 }
 
+/**
+ * @param {MOZ.Property.Entry} propConfig
+ * @param {MOZ.Property.Value} oldValue
+ * @returns {?MOZ.Property.Value} The casted value or null if casting failed
+ */
+export function castPropertyData(propConfig, oldValue) {
+  try {
+    switch (propConfig.type) {
+      case "string":
+        return String(oldValue);
+      case "int":
+      case "float":
+        return Number(oldValue);
+      case "bool":
+        return Boolean(oldValue);
+      case "color":
+        return new THREE.Color(oldValue);
+      case "nodeRef":
+      case "enum":
+      case "vec2":
+      case "vec3":
+      case "array":
+      default:
+        return null;
+    }
+  } catch (e) {
+    return null;
+  }
+}
+
 // TODO: Support the full collection of Blender unit types, see:
 // https://docs.blender.org/api/current/bpy.props.html#bpy.props.FloatProperty
 

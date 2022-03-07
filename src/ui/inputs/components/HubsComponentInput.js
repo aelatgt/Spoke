@@ -94,6 +94,19 @@ export default function HubsComponentInput({
     set(component => (component.selector = selector));
   };
 
+  const onClickMigrate = () => {
+    const newData = component.attemptMigration();
+    if (newData) {
+      set(component => {
+        component.data = newData;
+        component.config = component.getLatestConfig();
+        component.types = component.getLatestDependentTypes();
+      });
+    } else {
+      onDelete();
+    }
+  };
+
   const CaretComponent = component.collapsed ? CaretRight : CaretDown;
   return (
     <ComponentContainer>
@@ -103,7 +116,7 @@ export default function HubsComponentInput({
           {component.getHubsName()}
         </ComponentHeaderLabel>
         {component.needsUpdate() && (
-          <PaddedTooltip info="Outdated config">
+          <PaddedTooltip info="Outdated config" onClick={onClickMigrate}>
             <ExclamationTriangle size={14} color={theme.text2} />
           </PaddedTooltip>
         )}
