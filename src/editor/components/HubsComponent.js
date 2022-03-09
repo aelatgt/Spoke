@@ -288,7 +288,7 @@ export default class HubsComponent {
    *
    * @returns {?MOZ.Component.Data} The updated component data, or null if the component should be deleted
    */
-  attemptMigration() {
+  getDataMigration() {
     /** @type {MOZ.Component.Data} Deep clone of component data */
     const newData = JSON.parse(JSON.stringify(this.data));
 
@@ -321,7 +321,7 @@ export default class HubsComponent {
     /**
      * Removed properties: delete property data
      */
-    for (const name of Object.keys(diffProperties.removed)) {
+    for (const name of Object.keys(diffProperties.deleted)) {
       if ("type" in diffProperties.added[name]) {
         delete newData[name];
       }
@@ -350,7 +350,7 @@ export default class HubsComponent {
      * Updated type definition: set default values
      * TODO: try migrating array entries if possible (recursive?)
      */
-    for (const name in Object.keys(this.data)) {
+    for (const name of Object.keys(this.data)) {
       const propConfig = latestProperties[name];
       if (propConfig.type === "array") {
         if (propConfig.arrayType in diffTypes.updated) {

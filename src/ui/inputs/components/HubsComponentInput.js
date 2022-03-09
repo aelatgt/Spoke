@@ -95,7 +95,7 @@ export default function HubsComponentInput({
   };
 
   const onClickMigrate = () => {
-    const newData = component.attemptMigration();
+    const newData = component.getDataMigration();
     if (newData) {
       set(component => {
         component.data = newData;
@@ -116,7 +116,7 @@ export default function HubsComponentInput({
           {component.getHubsName()}
         </ComponentHeaderLabel>
         {component.needsUpdate() && (
-          <PaddedTooltip info="Outdated config" onClick={onClickMigrate}>
+          <PaddedTooltip info="Click to update component" onClick={onClickMigrate}>
             <ExclamationTriangle size={14} color={theme.text2} />
           </PaddedTooltip>
         )}
